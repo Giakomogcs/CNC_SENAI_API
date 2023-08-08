@@ -2,6 +2,17 @@ const AppError = require("../utils/AppError")
 
 class MachineController{
     create(request,response){
+      const {name} = request.body
+
+      if(!name){
+        throw new AppError("Nome é obrigatório")
+      }
+
+      response.status(201).json({name})
+    }
+
+    
+    status(request,response){
       const {name, available, working} = request.body
 
       if(!name){
@@ -14,5 +25,7 @@ class MachineController{
       
       response.status(201).json({name, available, working})
     }
+
+
   }
   module.exports = MachineController
