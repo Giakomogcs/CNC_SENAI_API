@@ -4,7 +4,7 @@ exports.up = knex => knex.schema.createTable("workdata", table => {
     table.integer("machine_id").references("id").inTable("machines")
     table.boolean("available")
     table.boolean("working")
-    table.timestamp("timestamp").default(knex.fn.now())
+    table.timestamp("timestamp", { useTz: true }).default(knex.fn.now())
 });
   
 

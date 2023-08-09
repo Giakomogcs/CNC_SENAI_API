@@ -7,6 +7,12 @@ class MachineController{
 
       const database = await sqliteConnection()
 
+      const zDate = new Date().toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        dateStyle: 'short',
+        timeStyle: 'medium'
+      });
+
       if(!name){
         throw new AppError("Nome é obrigatório")
       }
@@ -17,25 +23,10 @@ class MachineController{
         throw new AppError("Essa máquina já está em uso")
       }
 
-      await database.run("INSERT INTO machines (name) VALUES (?)",
-      [name])
+      await database.run("INSERT INTO machines (name,created_at,updated_at) VALUES (?,?,?)",
+      [name,zDate,zDate])
 
-      response.status(201).json({name})
-    }
-
-
-    status(request,response){
-      const {name, available, working} = request.body
-
-      if(!name){
-        throw new AppError("Nome é obrigatório")
-      }
-
-      if(available == working){
-        throw new AppError("Não é possivel estar disponivel e trabalhando ao mesmo tempo")
-      }
-      
-      response.status(201).json({name, available, working})
+      response.status(201).json()
     }
 
 
