@@ -72,18 +72,16 @@ class WorkDataController{
           work.push(data.timestamp);
         }
         
-        if(data.working){
+        if(data.available){
           availeble.push(data.timestamp);
         }
-        
-        // const dataMachineWork = datas.filter(status => status.working == true)
-        // return{
-        //   ...data, 
-        //   data: dataMachine
-        // }
+
       })
   
-      return response.json(work)
+      return response.json({
+        work: work,
+        available: availeble
+      })
   
     }
 
