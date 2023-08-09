@@ -35,9 +35,11 @@ class WorkDataController{
     }
 
     async status(request,response){
-      let datas
       const{name} = request.params
       const {start, end} = request.query;
+      let datas
+      let work = []
+      let availeble = []
 
   
       const machine = await knex("machines").where({name}).first()
@@ -65,16 +67,23 @@ class WorkDataController{
         .orderBy("workdata.timestamp")
       }
       
-      // const machineWithData = workdata.map(data => {
-
-      //   const dataMachine = datas.filter(status => status.working == true)
-      //   return{
-      //     ...data, 
-      //     data: dataMachine
-      //   }
-      // })
+      const machineWithData = datas.map(data => {
+        if(data.working){
+          work.push(data.timestamp);
+        }
+        
+        if(data.working){
+          availeble.push(data.timestamp);
+        }
+        
+        // const dataMachineWork = datas.filter(status => status.working == true)
+        // return{
+        //   ...data, 
+        //   data: dataMachine
+        // }
+      })
   
-      return response.json(datas)
+      return response.json(work)
   
     }
 
