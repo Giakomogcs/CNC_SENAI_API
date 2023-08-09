@@ -35,21 +35,46 @@ class WorkDataController{
     }
 
     async status(request,response){
+      let datas
       const{name} = request.params
+      const {start, end} = request.query;
+
   
       const machine = await knex("machines").where({name}).first()
       const workdata = await knex("workdata").where({machine_id: machine.id}).orderBy("timestamp")
 
-      const machineWithData = workdata.map(workdata => {
+      if (!machine){
+        throw new AppError("Não foi possível encontrar a máquina (machine_id)")
+      }
 
-        const dataMachine = workdata.filter(time => time.timestamp >= machine.created_at)
-        return{
-          ...machine, 
-          data: dataMachine
-        }
-      })
+      else{
+        datas = await knex("workdata")
+        .select([
+          "workdata.machine_id",
+          "workdata.working",
+          "workdata.available",
+          "workdata.timestamp"
+        ])
+        .where("workdata.machine_id", machine.id)
+        //.where("workdata.working", true)
+        //.where("workdata.available", true)
+        .where('workdata.timestamp', '>=', start)
+        .where('workdata.timestamp', '<=', end)
+
+        .groupBy("workdata.timestamp")
+        .orderBy("workdata.timestamp")
+      }
+      
+      // const machineWithData = workdata.map(data => {
+
+      //   const dataMachine = datas.filter(status => status.working == true)
+      //   return{
+      //     ...data, 
+      //     data: dataMachine
+      //   }
+      // })
   
-      return response.json(machineWithData)
+      return response.json(datas)
   
     }
 
