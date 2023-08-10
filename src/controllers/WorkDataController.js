@@ -6,7 +6,13 @@ const moment = require("moment/moment");
 class WorkDataController{
     
     async create(request,response){
-      const {machine_id, available, working} = request.body
+      let {machine_id, available, working} = request.body
+
+      working ? working = working : working = !available
+      available ? available = available : available = !working
+
+      console.log(working)
+      console.log(available)
       
       const machine = await knex("machines").where({id:machine_id}).first()
       
@@ -52,6 +58,7 @@ class WorkDataController{
       let work
       let available
       let times = []
+      let types = []
       
       const machine = await knex("machines").where({name}).first()
 
@@ -76,31 +83,70 @@ class WorkDataController{
         .orderBy("workdata.timestamp")
       }
       
-      let i=0
+      let i = 0
+      let auxTime = 0
+
+
       datas.map(data => {
 
         var math = moment(data.timestamp, "DD/MM/YYYY HH:mm:ss").diff(moment(times[times.length-1], "DD/MM/YYYY HH:mm:ss"))
         var mathtHours = moment.duration(math).asHours()
 
         
-        if(i != 0){
-          console.log(`${data.timestamp} e ${times[times.length-1]}`)
-          console.log(mathtHours)
+        if(i != 0 && i%2 != 0){
+          //console.log(`${data.timestamp} e ${times[times.length-1]}`)
+          auxTime = mathtHours + auxTime
         }
-
+        
         times.push(data.timestamp);
+        types.push(data.working);
         i++
       })
 
-      var shift = moment(times[times.length-1], "DD/MM/YYYY HH:mm:ss").diff(moment(times[0], "DD/MM/YYYY HH:mm:ss"))
-      var shiftHours = moment.duration(shift).asHours()
+      var shift
+      var shiftHours
 
-      console.log(shiftHours)
-  
+      if(moment(end, "DD/MM/YYYY HH:mm:ss") > new Date()){
+        shift = moment(new Date(), "DD/MM/YYYY HH:mm:ss").diff(moment(times[0], "DD/MM/YYYY HH:mm:ss"))
+        shiftHours = moment.duration(shift).asHours()
+
+      } else{
+        //shift = moment(times[times.length-1], "DD/MM/YYYY HH:mm:ss").diff(moment(times[0], "DD/MM/YYYY HH:mm:ss"))
+        //shiftHours = moment.duration(shift).asHours()
+
+        shift = moment(end, "DD/MM/YYYY HH:mm:ss").diff(moment(start, "DD/MM/YYYY HH:mm:ss"))
+        shiftHours = moment.duration(shift).asHours()
+      }
+
+
+      var shiftInit = moment(times[0], "DD/MM/YYYY HH:mm:ss").diff(moment(start, "DD/MM/YYYY HH:mm:ss"))
+      var shiftInitHours = moment.duration(shiftInit).asHours()
+
+      var shiftFinal = moment(end, "DD/MM/YYYY HH:mm:ss").diff(moment(times[times.length-1], "DD/MM/YYYY HH:mm:ss"))
+      var shiftFinalHours = moment.duration(shiftFinal).asHours()
+
+
+      if (types[0] == true){
+        work = auxTime 
+        available = shiftHours - (work + shiftInitHours)
+
+      } else{
+        available = auxTime
+        work = shiftHours - (available)
+      }
+
+      if (types[types.length-1] == true){
+        work = work + shiftFinalHours
+
+      } else{
+        available = available + shiftFinalHours
+      }
+
       return response.json({
         datas,
-        //work: work,
-        //available: availeble
+        work: work,
+        available: available,
+        shift: shiftHours + shiftFinalHours
       })
   
     }
