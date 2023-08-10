@@ -1,18 +1,22 @@
 const AppError = require("../utils/AppError")
 const knex = require("../database/knex");
+const sqliteConnection = require('../database/sqlite')
+const {differenceInMinutes} = require("date-fns")
 
 class WorkDataController{
     
     async create(request,response){
       const {machine_id, available, working} = request.body
+      const database = await sqliteConnection()
+      
+      const machine = await knex("machines").where({id:machine_id}).first()
+      //const machine = await database.get("SELECT * FROM machines WHERE id = (?)", [machine_id])
+      
+      if(!machine){
+        throw new AppError("Não foi possível encontrar a máquina (machine_id)")
+      }
 
-      const zDate = new Date().toLocaleString('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        dateStyle: 'short',
-        timeStyle: 'medium'
-      });
-
-      const timestamp = zDate;
+      const timestamp = new Date()
 
       if(!machine_id){
         throw new AppError("Nome da máquina (machine_id) é obrigatório")
@@ -33,22 +37,21 @@ class WorkDataController{
       return response.json();
       
     }
-
+    
     async status(request,response){
       const{name} = request.params
       const {start, end} = request.query;
       let datas
       let work = []
       let availeble = []
-
-  
+      
+      
       const machine = await knex("machines").where({name}).first()
-      const workdata = await knex("workdata").where({machine_id: machine.id}).orderBy("timestamp")
 
       if (!machine){
         throw new AppError("Não foi possível encontrar a máquina (machine_id)")
       }
-
+      
       else{
         datas = await knex("workdata")
         .select([
@@ -62,25 +65,28 @@ class WorkDataController{
         //.where("workdata.available", true)
         .where('workdata.timestamp', '>=', start)
         .where('workdata.timestamp', '<=', end)
-
         .groupBy("workdata.timestamp")
         .orderBy("workdata.timestamp")
       }
       
-      const machineWithData = datas.map(data => {
-        if(data.working){
-          work.push(data.timestamp);
-        }
-        
-        if(data.available){
-          availeble.push(data.timestamp);
-        }
 
+      datas.map(data => {
+        const timer = new Date(data.timestamp)
+        console.log(data.timestamp)
+
+        // if(data.working){
+        //   work.push(data.timestamp);
+        // }
+        
+        // if(data.available){
+        //   availeble.push(data.timestamp);
+        // }
       })
   
       return response.json({
-        work: work,
-        available: availeble
+        datas,
+        //work: work,
+        //available: availeble
       })
   
     }
