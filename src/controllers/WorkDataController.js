@@ -51,8 +51,12 @@ class WorkDataController{
     
     async status(request,response){
       const{name} = request.params
-      const {start, end} = request.query;
+      let {start, end} = request.query;
+
+      start ? start = start : start = new Date().getDate() -2
+      end ? end = end : end = new Date().toLocaleDateString()  
       
+      console.log(start)
       
       let datas
       let work
