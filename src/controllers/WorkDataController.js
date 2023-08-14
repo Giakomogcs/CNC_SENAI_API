@@ -10,9 +10,6 @@ class WorkDataController{
 
       working ? working = working : working = !available
       available ? available = available : available = !working
-
-      console.log(working)
-      console.log(available)
       
       const machine = await knex("machines").where({id:machine_id}).first()
       
@@ -56,7 +53,7 @@ class WorkDataController{
       start ? start = start : start = new Date().getDate() -2
       end ? end = end : end = new Date().toLocaleDateString()  
       
-      console.log(start)
+      //console.log(start)
       
       let datas
       let work
@@ -92,18 +89,18 @@ class WorkDataController{
 
 
       datas.map(data => {
-
+        
         var math = moment(data.timestamp, "DD/MM/YYYY HH:mm:ss").diff(moment(times[times.length-1], "DD/MM/YYYY HH:mm:ss"))
         var mathtHours = moment.duration(math).asHours()
-
+        
         
         if(i != 0 && i%2 != 0){
-          //console.log(`${data.timestamp} e ${times[times.length-1]}`)
           auxTime = mathtHours + auxTime
         }
         
         times.push(data.timestamp);
         types.push(data.working);
+
         i++
       })
 
@@ -115,8 +112,6 @@ class WorkDataController{
         shiftHours = moment.duration(shift).asHours()
 
       } else{
-        //shift = moment(times[times.length-1], "DD/MM/YYYY HH:mm:ss").diff(moment(times[0], "DD/MM/YYYY HH:mm:ss"))
-        //shiftHours = moment.duration(shift).asHours()
 
         shift = moment(end, "DD/MM/YYYY HH:mm:ss").diff(moment(start, "DD/MM/YYYY HH:mm:ss"))
         shiftHours = moment.duration(shift).asHours()
