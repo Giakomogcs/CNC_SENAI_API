@@ -1,4 +1,5 @@
 const AppError = require("../utils/AppError")
+const knex = require("../database/knex")
 const sqliteConnection = require('../database/sqlite')
 
 class MachineController{
@@ -27,6 +28,24 @@ class MachineController{
       [name,zDate,zDate])
 
       response.status(201).json()
+    }
+
+    async register(request,response){
+
+      const machines = await knex("machines")
+
+      console.log(machines)
+
+      if (!machines){
+        throw new AppError("Não foi possível encontrar a máquina (machine_id)")
+      }
+      
+      
+
+      return response.json({
+        machines
+      })
+  
     }
 
 
