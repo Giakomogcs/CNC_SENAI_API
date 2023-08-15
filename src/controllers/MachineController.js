@@ -34,8 +34,6 @@ class MachineController{
 
       const machines = await knex("machines")
 
-      console.log(machines)
-
       if (!machines){
         throw new AppError("Não foi possível encontrar a máquina (machine_id)")
       }
