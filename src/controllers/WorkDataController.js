@@ -53,11 +53,9 @@ class WorkDataController{
       start ? start = start : start = new Date().getDate() -2
       end ? end = end : end = new Date().toLocaleDateString()  
       
-      //console.log(start)
-      
       let datas
-      let work
-      let available
+      let work = 0
+      let available = 0
       let times = []
       let types = []
       
@@ -107,36 +105,36 @@ class WorkDataController{
       var shift
       var shiftHours
 
-      if(moment(end, "DD/MM/YYYY HH:mm:ss") > new Date()){
+      if(moment(end, "DD/MM/YYYY HH:mm:ss") > new Date()){ //se a data final é maior que o dia atual muda para o dia atual
         shift = moment(new Date(), "DD/MM/YYYY HH:mm:ss").diff(moment(times[0], "DD/MM/YYYY HH:mm:ss"))
         shiftHours = moment.duration(shift).asHours()
 
       } else{
-
         shift = moment(end, "DD/MM/YYYY HH:mm:ss").diff(moment(start, "DD/MM/YYYY HH:mm:ss"))
         shiftHours = moment.duration(shift).asHours()
       }
 
 
       var shiftInit = moment(times[0], "DD/MM/YYYY HH:mm:ss").diff(moment(start, "DD/MM/YYYY HH:mm:ss"))
-      var shiftInitHours = moment.duration(shiftInit).asHours()
+      var shiftInitHours = moment.duration(shiftInit).asHours() //calcula quantas horas teve antes do mostrado da tabela
 
       var shiftFinal = moment(end, "DD/MM/YYYY HH:mm:ss").diff(moment(times[times.length-1], "DD/MM/YYYY HH:mm:ss"))
-      var shiftFinalHours = moment.duration(shiftFinal).asHours()
+      var shiftFinalHours = moment.duration(shiftFinal).asHours() //calcula quantas horas teve depois do mostrado da tabela
 
 
-      if (types[0] == true){
+      if (types[0] == true){ //se for working as horas acrescentadas serão no available
         work = auxTime 
-        available = shiftHours - (work + shiftInitHours)
+        available = (shiftHours - work) 
 
       } else{
         available = auxTime
-        work = shiftHours - (available)
+        if(available>0){
+          work = (shiftHours - available) + shiftInitHours
+        }
       }
 
       if (types[types.length-1] == true){
         work = work + shiftFinalHours
-
       } else{
         available = available + shiftFinalHours
       }
