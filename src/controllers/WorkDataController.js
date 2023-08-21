@@ -50,8 +50,35 @@ class WorkDataController{
       const{name} = request.params
       let {start, end} = request.query;
 
-      start ? start = start : start = new Date().getDate() -2
-      end ? end = end : end = new Date().toLocaleDateString()  
+      //start ? start = start : start = new Date().getDate() -2
+      //end ? end = end : end = new Date().toLocaleDateString() 
+      
+      if (!start) {
+        // Se start não foi fornecido na query, defina-o como dois dias atrás do dia atual.
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        start = twoDaysAgo.toLocaleString("pt-BR", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+      
+      if (!end) {
+        // Se end não foi fornecido na query, defina-o como o dia atual.
+        const currentDate = new Date();
+        end = currentDate.toLocaleString("pt-BR", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
       
       let datas
       let work = 0
