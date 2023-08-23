@@ -55,9 +55,9 @@ class WorkDataController{
       
       if (!start) {
         // Se start não foi fornecido na query, defina-o como dois dias atrás do dia atual.
-        const twoDaysAgo = new Date();
-        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-        start = twoDaysAgo.toLocaleString("pt-BR", {
+        const oneDaysAgo = new Date();
+        oneDaysAgo.setDate(oneDaysAgo.getDate() - 1);
+        start = oneDaysAgo.toLocaleString("pt-BR", {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
@@ -168,9 +168,38 @@ class WorkDataController{
 
       return response.json({
         datas,
-        work: work,
-        available: available,
-        shift: shiftHours + shiftFinalHours
+        work: work.toFixed(2),
+        available: available.toFixed(2),
+        shift: (shiftHours + shiftFinalHours).toFixed(2)
+      })
+  
+    }
+
+
+
+    async state(request,response){
+      const{name} = request.params
+
+      const machine = await knex("machines").where({name}).first()
+
+      if (!machine){
+        throw new AppError("Não foi possível encontrar a máquina (machine_id)")
+      }
+      
+      const data = await knex("workdata")
+        .select([
+          "workdata.machine_id",
+          "workdata.working",
+          "workdata.available",
+          "workdata.timestamp"
+        ])
+        .where("workdata.machine_id", machine.id)
+        .orderBy("timestamp", "desc")
+        .first();
+      
+
+      return response.json({
+        data
       })
   
     }
