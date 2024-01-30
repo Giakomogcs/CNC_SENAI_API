@@ -48,39 +48,37 @@ class WorkDataController {
     const { name } = request.params;
     let { start, end } = request.query;
 
-    //start ? start = start : start = new Date().getDate() -2
-    //end ? end = end : end = new Date().toLocaleDateString()
-
     if (!start) {
       // Se start não foi fornecido na query, defina-o como dois dias atrás do dia atual.
       const oneDaysAgo = new Date();
       oneDaysAgo.setDate(oneDaysAgo.getDate() - 1);
-      start = oneDaysAgo
-        .toLocaleString("pt-BR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-        .replace(/,/g, ""); // Remova a vírgula do formato
+      start = oneDaysAgo.toLocaleString("pt-BR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      //.replace(/,/g, ""); // Remova a vírgula do formato
     }
 
     if (!end) {
       // Se end não foi fornecido na query, defina-o como o dia atual.
       const currentDate = new Date();
-      end = currentDate
-        .toLocaleString("pt-BR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-        .replace(/,/g, ""); // Remova a vírgula do formato
+      end = currentDate.toLocaleString("pt-BR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      //.replace(/,/g, ""); // Remova a vírgula do formato
     }
+
+    //start ? (start = start) : (start = new Date().getDate() - 2);
+    //end ? (end = end) : (end = new Date().toLocaleDateString());
 
     let datas;
     let work = 0;
