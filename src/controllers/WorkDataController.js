@@ -109,13 +109,25 @@ class WorkDataController {
     let i = 0;
     let auxTime = 0;
 
-    datas.map((data) => {
-      const cleanTimestamp = data.timestamp.replace(/,/g, "");
+    const filteredDatas = datas.filter((data) => {
+      const timestamp = moment(data.timestamp, "DD/MM/YYYY HH:mm:ss");
 
-      var math = moment(cleanTimestamp, "DD/MM/YYYY HH:mm:ss").diff(
-        moment(times[times.length - 1], "DD/MM/YYYY HH:mm:ss")
+      return (
+        timestamp.isSameOrAfter(moment(start, "DD/MM/YYYY HH:mm:ss")) &&
+        timestamp.isSameOrBefore(moment(end, "DD/MM/YYYY HH:mm:ss"))
       );
-      var mathtHours = moment.duration(math).asHours();
+    });
+
+    datas = filteredDatas;
+
+    datas.map((data) => {
+      const cleanTimestamp = data.timestamp.replace(/[^0-9/: ,]/g, "");
+
+      const math = moment(cleanTimestamp, "DD/MM/YYYY, HH:mm:ss").diff(
+        moment(times[times.length - 1], "DD/MM/YYYY, HH:mm:ss")
+      );
+
+      const mathtHours = moment.duration(math).asHours();
 
       if (i != 0 && i % 2 != 0) {
         auxTime = mathtHours + auxTime;
@@ -128,16 +140,6 @@ class WorkDataController {
     });
 
     // Filtrar as datas entre start e end
-    const filteredDatas = datas.filter((data) => {
-      const timestamp = moment(data.timestamp, "DD/MM/YYYY HH:mm:ss");
-
-      return (
-        timestamp.isSameOrAfter(moment(start, "DD/MM/YYYY HH:mm:ss")) &&
-        timestamp.isSameOrBefore(moment(end, "DD/MM/YYYY HH:mm:ss"))
-      );
-    });
-
-    datas = filteredDatas;
 
     var shift;
     var shiftHours;
